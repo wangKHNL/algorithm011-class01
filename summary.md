@@ -1,86 +1,45 @@
-LRU缓存机制解题思路：
-
-题目：
-运用你所掌握的数据结构，设计和实现一个  LRU (最近最少使用) 缓存机制。它应该支持以下操作： 获取数据 get 和 写入数据 put 。
-获取数据 get(key) - 如果关键字 (key) 存在于缓存中，则获取关键字的值（总是正数），否则返回 -1。
-写入数据 put(key, value) - 如果关键字已经存在，则变更其数据值；如果关键字不存在，则插入该组「关键字/值」。当缓存容量达到上限时，它应该在写入新数据之前删除最久未使用的数据值，从而为新的数据值留出空间。
-
-一、题目理解
-1、获取数据，代表最近使用过该部分数据，因此，当获取到的数据的同时，应该将数据向前移动，或者是提升数据的权限，避免被当作不使用数据删除掉；
-2、写入数据，其实也包含获取数据的一些操作，如果数据已经存在，则应该将该数据向前移动（类似于获取数据时的操作），如果数据不存在，则在最前面位置重新插入数据即可，插入后判断容量，如果超出上限则删除尾部数据（不常用数据）
-二、编写思路
-1、为了实现O(1)时间复杂度查找和插入数据，因此可以选择哈希表来存放（key,value）对，可以保证O(1)时间复杂度内定位数据。
-2、在查找和写入数据时，涉及到数据的移动、删除等操作，选择双向链表结构可以保证在O(1)时间复杂度要求内，对数据进行操作，直接达到结果，不需要过多的挪动其他数据元素；
-3、初始化链表时，可以先构造head和tail两个节点，便于元素的操作。
-三、示例代码（可执行）
-class DLinkedNode:
-    def __init__(self, key=0, value=0):
-        self.key = key
-        self.value = value
-        self.prev = None
-        self.next = None
-
-
-class LRUCache:
-
-    def __init__(self, capacity: int):
-        self.capacity = capacity
-        self.hash_map = {}
-        self.head = DLinkedNode()
-        self.tail = DLinkedNode()
-        self.head.next = self.tail
-        self.tail.prev = self.head
-        self.size = 0
-
-    def get(self, key: int) -> int:
-        if key in self.hash_map:
-            node = self.hash_map[key]
-            # 先删除节点
-            node.prev.next = node.next
-            node.next.prev = node.prev
-            # 移动节点到头部
-            node.prev = self.head
-            node.next = self.head.next
-            self.head.next.prev = node
-            self.head.next = node
-            return node.value
-        else:
-            return -1
-
-    def put(self, key: int, value: int) -> None:
-        if key in self.hash_map:
-            node = self.hash_map[key]
-            # 更新key对应的value值
-            node.value = value
-            # 先删除节点
-            node.prev.next = node.next
-            node.next.prev = node.prev
-            # 移动节点到头部
-            node.prev = self.head
-            node.next = self.head.next
-            self.head.next.prev = node
-            self.head.next = node
-        else:
-            node = DLinkedNode(key, value)
-            self.hash_map[key] = node
-            # 插入最新数据到头部
-            node.prev = self.head
-            node.next = self.head.next
-            self.head.next.prev = node
-            self.head.next = node
-            self.size += 1
-            if self.size > self.capacity:
-                # 删除尾部元素
-                self.hash_map.pop(self.tail.prev.key)
-                self.tail.prev.prev.next = self.tail
-                self.tail.prev = self.tail.prev.prev
-
-
-if __name__ == '__main__':
-    obj = LRUCache(2)
-    obj.put(2, 1)
-    obj.put(2, 2)
-    param_1 = obj.get(1)
-    obj.put(3, 3)
-    param_1 = obj.get(2)
-    print('end')
+一、对数据结构和算法的认识
+算法是解决问题的的一种思路，编写的代码就是要告诉计算机如何实现这种思路的逻辑处理过程，因此，可以认为算法是编程的核心思想，好的算法能够高效的解决问题，而数据结构是对计算机中数据的组织形式，同时，数据结构也是为了满足算法实现的要求，因此数据结构与算法是相辅相成，对其进行熟练掌握，能够提升编程以及解决问题的能力。
+二、知识收获
+1、数据结构
+（1）一维：
+基础：数组 array (string), 链表 linked list
+高级：栈 stack, 队列 queue, 双端队列 deque, 集合 set, 映射 map (hash or map)
+（2）二维：
+基础：树 tree, 图 graph
+高级：二叉搜索树 binary search tree (red-black tree, AVL), 堆 heap, 并查集 disjoint set, 字典树 Trie, etc
+（3）特殊：
+位运算 Bitwise, 布隆过滤器 BloomFilter
+LRU Cache
+2、算法
+（1）If-else, switch —> branch
+（2）for, while loop —> Iteration
+（3）递归 Recursion (Divide & Conquer, Backtrace)
+（4）搜索 Search: 深度优先搜索 Depth first search, 广度优先搜索 Breadth first search, A*
+（5）动态规划 Dynamic Programming
+（6）二分查找 Binary Search
+（7）贪心 Greedy
+（8）数学 Math , 几何 Geometry
+三、学习方法
+1、五毒神掌
+（1）刷题第一遍
+• 5分钟：读题 + 思考
+• 直接看解法：注意！多解法，比较解法优劣
+• 背诵、默写好的解法
+（2）刷题第二遍
+• 马上自己写 —> LeetCode 提交
+• 多种解法比较、体会 —> 优化！
+（3）刷题第三遍
+• 过了一天后，再重复做题
+• 不同解法的熟练程度 —> 专项练习
+（4）刷题第四遍
+• 过了一周：反复回来练习相同题目
+（5）刷题第五遍
+• 面试前一周恢复性训练
+2、多练习
+所学的知识点要多练习，不能只学一遍或者只练习一遍，这样不能达到熟练，更不能融会贯通，老师说过：“基本功是区别职业选手和业余选手的根本”，因此，课程结束后也要继续多巩固知识点、多练习题目、多看好的代码和题解。
+三、学习自评
+经过两个月的算法训练营学习，对数据结构和算法的知识内容有了更深的理解，尤其是老师利用脑图对知识结构进行了归纳总结，使自己对所学知识进行了清晰的梳理。
+经过课程学习，对实际工作最大的作用就是平时写代码时不再是过去的傻编程，而是将承接数据的数据结构和以及解决问题的算法融入代码设计中，无论是从代码结构还是效率上都有一定的提升。虽然目前还不能将老师的知识内容完全消化，但是已经能够将解决问题的思路和方法逐步带入实际工作中。
+本次课程有所收获，但也有挺多需要提升的地方，比如平时的作业只能勉强完成，对于简单或者中等难度的题目可以基本解答，但是对于较难的题目还不能很好的完成，此外，平时的练习投入较少，没有跟上每日练习的进度，因此，课程结束后仍然需要坚持多加练习
+，也要多看网站上优秀的代码。
